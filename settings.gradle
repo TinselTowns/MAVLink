@@ -1,0 +1,2 @@
+rootProject.name = "MAVLink"
+include ':app'
