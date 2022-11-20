@@ -21,6 +21,11 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     private float centerY2;
     private float baseRadius;
     private float hatRadius;
+    public static float[] pos = new float[4];
+    float x1 = centerX;
+    float y1 = centerY;
+    float x2 = centerX;
+    float y2 = centerY2;
 
     private void setUp() {
         centerX = getWidth() / 4;
@@ -52,6 +57,10 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
     public void drawJoystick(float newX, float newY, float newX2, float newY2) {
         if (getHolder().getSurface().isValid()) {
+            x1 = newX;
+            y1 = newY;
+            x2 = newX2;
+            y2 = newY2;
             Canvas myCanvas = this.getHolder().lockCanvas();
             Paint colors = new Paint();
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -77,7 +86,6 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         drawJoystick(centerX, centerY, centerX2, centerY2);
 
 
-
     }
 
     @Override
@@ -90,98 +98,173 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
     }
 
-    public float zeroX = centerX;
-    public float zeroY = centerY;
+    int upPI = 0;
+    int downPI = 0;
+    boolean inTouch = false;
+
+    float zeroX = 0;
+    float zeroY = 0;
     public float curX = centerX;
     public float curY = centerY;
-    public boolean first = false;
-    public float displacement = 0;
+    int index1 = -1;
+    int ID1 = -1;
 
-    public float zeroX2 = centerX2;
-    public float zeroY2 = centerY2;
+    float zeroX2 = 0;
+    float zeroY2 = 0;
     public float curX2 = centerX2;
     public float curY2 = centerY2;
-    public boolean second = false;
-    public float displacement2 = 0;
+    int index2 = -1;
+    int ID2 = -1;
 
+    public float[] getPosition() {
+
+        pos[0] = (x1 - centerX) * 500 / baseRadius + 1500;
+        pos[1] = (y1 - centerY) * 500 / baseRadius + 1500;
+        pos[2] = (x2 - centerX2) * 500 / baseRadius + 1500;
+        pos[3] = (y2 - centerY2) * 500 / baseRadius + 1500;
+
+        return pos;
+
+    }
 
     public boolean onTouch(View v, MotionEvent e) {
-        Log.d("Main Method", "X " + e.getX() + " Y " + e.getY());
+
         if (v.equals(this)) {
 
-            Log.d("center ", "X " + centerX + " Y " + centerY);
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                if (!first && (float) Math.sqrt((Math.pow(e.getX() - centerX, 2)) + Math.pow(e.getY() - centerY, 2)) < baseRadius) {
-                    zeroX = e.getX();
-                    zeroY = e.getY();
-                    curX = e.getX();
-                    curY = e.getY();
-                    first = true;
+            int actionMask = e.getActionMasked();
 
-                    Log.d("pos ", "X " + e.getX() + " Y " + e.getY());
-                } else if (!second && (float) Math.sqrt((Math.pow(e.getX() - centerX2, 2)) + Math.pow(e.getY() - centerY2, 2)) < baseRadius) {
-                    zeroX2 = e.getX();
-                    zeroY2 = e.getY();
-                    curX2 = e.getX();
-                    curY2 = e.getY();
-                    second = true;
-
-                    Log.d("pos2 ", "X " + e.getX() + " Y " + e.getY());
-                }
-            } else {
-                if (e.getAction() != MotionEvent.ACTION_UP && first) {
-
-                    displacement = (float) Math.sqrt((Math.pow(e.getX() - zeroX, 2)) + Math.pow(e.getY() - zeroY, 2));
+            int pointerIndex = e.getActionIndex();
 
 
-                    if (displacement > baseRadius) {
-                        float dis = (float) Math.sqrt((Math.pow(e.getX() - centerX, 2)) + Math.pow(e.getY() - centerY, 2));
-                        float ratio = baseRadius / dis;
-                        float constrainedX = centerX + (e.getX() - centerX) * ratio;
-                        float constrainedY = centerY + (e.getY() - centerY) * ratio;
-                        drawJoystick(constrainedX, constrainedY,0,0);
-                    } else {
-
-                        drawJoystick(-zeroX + e.getX() + centerX, -zeroY + e.getY() + centerY,centerX2,centerY2);
-                        curX = -zeroX + e.getX() + centerX;
-                        curY = -zeroY + e.getY() + centerY;
+            switch (actionMask) {
+                case MotionEvent.ACTION_DOWN:
+                    inTouch = true;
+                    if ((float) Math.sqrt((Math.pow(e.getX(0) - centerX, 2)) + Math.pow(e.getY(0) - centerY, 2)) < baseRadius) {
+                        index1 = 0;
+                        ID1 = e.getPointerId(0);
+                        zeroX = e.getX(0);
+                        zeroY = e.getY(0);
+                        curX = centerX;
+                        curY = centerY;
+                    } else if ((float) Math.sqrt((Math.pow(e.getX(0) - centerX2, 2)) + Math.pow(e.getY(0) - centerY2, 2)) < baseRadius) {
+                        index2 = 0;
+                        ID2 = e.getPointerId(0);
+                        zeroX2 = e.getX(0);
+                        zeroY2 = e.getY(0);
+                        curX2 = centerX2;
+                        curY2 = centerY2;
                     }
-
-
-                } else if(first) {
-                    drawJoystick(centerX, centerY,centerX2,centerY2);
-                    first = false;
-                }
-                if (e.getAction() != MotionEvent.ACTION_UP && second) {
-
-                    displacement2 = (float) Math.sqrt((Math.pow(e.getX() - zeroX2, 2)) + Math.pow(e.getY() - zeroY2, 2));
-
-
-                    if (displacement2 > baseRadius) {
-                        float dis = (float) Math.sqrt((Math.pow(e.getX() - centerX2, 2)) + Math.pow(e.getY() - centerY2, 2));
-                        float ratio = baseRadius / dis;
-                        float constrainedX = centerX2 + (e.getX() - centerX2) * ratio;
-                        float constrainedY = centerY2 + (e.getY() - centerY2) * ratio;
-                        drawJoystick(centerX,centerY,constrainedX, constrainedY);
-                    } else {
-
-                        drawJoystick(centerX,centerY,-zeroX2 + e.getX() + centerX2, -zeroY2 + e.getY() + centerY2);
-                        curX2 = -zeroX2 + e.getX() + centerX2;
-                        curY2 = -zeroY2 + e.getY() + centerY2;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    downPI = pointerIndex;
+                    if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius) {
+                        index1 = downPI;
+                        ID1 = e.getPointerId(downPI);
+                        zeroX = e.getX(downPI);
+                        zeroY = e.getY(downPI);
+                        curX = centerX;
+                        curY = centerY;
+                    } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius) {
+                        index2 = downPI;
+                        ID2 = e.getPointerId(downPI);
+                        zeroX2 = e.getX(downPI);
+                        zeroY2 = e.getY(downPI);
+                        curX2 = centerX2;
+                        curY2 = centerY2;
                     }
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    inTouch = false;
+                    ID1 = -1;
+                    index1 = -1;
+                    ID2 = -1;
+                    index2 = -1;
+                    drawJoystick(centerX, centerY, centerX2, centerY2);
+
+                case MotionEvent.ACTION_POINTER_UP:
+                    upPI = pointerIndex;
+                    if (index1 == upPI) {
+                        index1 = -1;
+                        ID1 = -1;
+                        index2 = 0;
+                        drawJoystick(centerX, centerY, curX2, curY2);
+                    } else if (index2 == upPI) {
+                        index2 = -1;
+                        ID2 = -1;
+                        index1 = 0;
+                        drawJoystick(curX, curY, centerX2, centerY2);
+                    }
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
 
 
-                } else if(second){
-                    drawJoystick(centerX,centerY,centerX2, centerY2);
-                    second = false;
-                }
+                    if (index1 != -1 && index2 != -1) {
+                        curX = -zeroX + e.getX(index1) + centerX;
+                        curY = -zeroY + e.getY(index1) + centerY;
+                        curX2 = -zeroX2 + e.getX(index2) + centerX2;
+                        curY2 = -zeroY2 + e.getY(index2) + centerY2;
+
+                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - zeroX2, 2)) + Math.pow(e.getY(index2) - zeroY2, 2));
+                        if (displacement2 > baseRadius) {
+                            float dis = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
+                            float ratio = baseRadius / dis;
+                            curX2 = centerX2 + (e.getX(index2) - centerX2) * ratio;
+                            curY2 = centerY2 + (e.getY(index2) - centerY2) * ratio;
+
+                        }
+
+                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
+                        if (displacement > baseRadius) {
+                            float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
+                            float ratio = baseRadius / dis;
+                            curX = centerX + (e.getX(index1) - centerX) * ratio;
+                            curY = centerY + (e.getY(index1) - centerY) * ratio;
+
+                        }
+                        drawJoystick(curX, curY, curX2, curY2);
+                    }
+                    if (index1 == -1) {
+                        index2 = 0;
+                        curX2 = -zeroX2 + e.getX(index2) + centerX2;
+                        curY2 = -zeroY2 + e.getY(index2) + centerY2;
+                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - zeroX2, 2)) + Math.pow(e.getY(index2) - zeroY2, 2));
+
+
+                        if (displacement2 > baseRadius) {
+                            float dis = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
+                            float ratio = baseRadius / dis;
+                            float constrainedX = centerX2 + (e.getX(index2) - centerX2) * ratio;
+                            float constrainedY = centerY2 + (e.getY(index2) - centerY2) * ratio;
+                            drawJoystick(centerX, centerY, constrainedX, constrainedY);
+                        } else drawJoystick(centerX, centerY, curX2, curY2);
+                    }
+                    if (index2 == -1) {
+                        index1 = 0;
+                        curX = -zeroX + e.getX(index1) + centerX;
+                        curY = -zeroY + e.getY(index1) + centerY;
+
+                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
+
+
+                        if (displacement > baseRadius) {
+                            float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
+                            float ratio = baseRadius / dis;
+                            float constrainedX = centerX + (e.getX(index1) - centerX) * ratio;
+                            float constrainedY = centerY + (e.getY(index1) - centerY) * ratio;
+                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
+                        } else drawJoystick(curX, curY, centerX2, centerY2);
+                    }
+                    break;
             }
+
         }
         return true;
     }
 
 
     public interface JoystickListener {
-        void onJoystickMoved(float xPercent, float yPercent, int id);
+        void onJoystickMoved(float xPercent, float yPercent, float x2Percent, float y2Percent, int id);
+
     }
 }

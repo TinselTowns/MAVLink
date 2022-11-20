@@ -1,5 +1,6 @@
 package com.example.mavlink;
 
+import android.os.Bundle;
 import android.util.Log;
 
 
@@ -21,9 +22,11 @@ import io.dronefleet.mavlink.Mavlink2Message;
 import io.dronefleet.mavlink.MavlinkConnection;
 import io.dronefleet.mavlink.MavlinkMessage;
 import io.dronefleet.mavlink.common.Heartbeat;
+import io.dronefleet.mavlink.common.LocalPositionNed;
 import io.dronefleet.mavlink.common.MavAutopilot;
 import io.dronefleet.mavlink.common.MavState;
 import io.dronefleet.mavlink.common.MavType;
+import io.dronefleet.mavlink.common.RcChannelsOverride;
 
 public class Clients extends Thread {
 
@@ -32,9 +35,14 @@ public class Clients extends Thread {
     private PipedInputStream MavInStream = new PipedInputStream(1024);
     private OutputStream MavOutStream;
 
-    public Clients(String address,int port) {
+    Joystick joystick;
+
+
+
+    public Clients(String address,int port, Joystick joystick) {
         this.serverIP=address;
         this.port=port;
+        this.joystick=joystick;
 
     }
 
@@ -51,7 +59,7 @@ public class Clients extends Thread {
             Socket socket = new Socket();
             socket.connect(address, 10000);
             Log.d("TCP_Client", "Connect");
-            MavOutStream = new OutputStream() { // создание потока отправки
+            MavOutStream = new OutputStream() {
                 byte[] buffer;
 
                 @Override
@@ -62,12 +70,12 @@ public class Clients extends Thread {
                 @Override
                 public void write(byte[] buf) throws IOException {
                     buffer = buf;
-                    flush(); // сообщения отправляются сразу
+                    flush();
                 }
 
                 @Override
                 public synchronized void flush() throws IOException {
-                    Log.d("TCP", "length = " + buffer.length + " data = " + Arrays.toString(buffer));
+                  // Log.d("TCP", "length = " + buffer.length + " data = " + Arrays.toString(buffer));
                     MavSocket.send(new DatagramPacket(buffer, 0, buffer.length, UDPaddress));
                 }
             };
@@ -76,13 +84,14 @@ public class Clients extends Thread {
             connection = MavlinkConnection.create(MavInStream, MavOutStream);
             HeartBeatMes();
             MavMes();
+            rcChannelsOut();
             byte[] buf = new byte[BUFFER_SIZE];
             Log.d("TCP_Client", "Connected");
             while (!MavSocket.isClosed()) {
                 DatagramPacket packet = new DatagramPacket(buf, BUFFER_SIZE);
-                Log.d("TCP_Client", "Wait");
+
                 MavSocket.receive(packet);
-                Log.d("TCP_Client", "Received");
+                //Log.d("TCP_Client", "Received");
                 out.write(Arrays.copyOfRange(packet.getData(),0, packet.getLength()));
             }
         } catch (Exception e) {
@@ -94,7 +103,7 @@ public class Clients extends Thread {
         }
 
     }
-
+float[] position=new float[3];
     private void MavMes() {
         Runnable runnable = new Runnable() {
             @Override
@@ -108,12 +117,26 @@ public class Clients extends Thread {
                                 continue;
                             }
                             message = connection.next();
+
                             if (message instanceof Mavlink2Message) {
-                                Log.d("new_message", "Mav2");
+                                //Log.d("new_message", "Mav2");
                                 Mavlink2Message message2 = (Mavlink2Message) message;
+                                if(message.getPayload() instanceof LocalPositionNed){
+                                    Log.d("new_message", "position");
+                                    MavlinkMessage<LocalPositionNed> localPos = (MavlinkMessage<LocalPositionNed>) message;
+                                    position[0]=localPos.getPayload().x();
+                                    position[1]=localPos.getPayload().y();
+                                    position[2]=localPos.getPayload().z();
+                                    for(int i=0;i<3;i++)
+                                    {
+                                       Log.d("new_message ", " "+position[i]);
+                                    }
+
+                                }
+
 
                                 if (message.getPayload() instanceof Heartbeat) {
-                                    Log.d("new_message", "heart");
+                                    //Log.d("new_message", "heart");
                                     MavlinkMessage<Heartbeat> heartbeatMessage = (MavlinkMessage<Heartbeat>) message;
                                 }
                             }
@@ -145,7 +168,6 @@ public class Clients extends Thread {
                                     .mavlinkVersion(3)
                                     .build();
                             connection.send2(systemId, componentId, heartbeat);
-                            Log.d("TCP_out", "HB");
                             wait(1000);
                         }
                     } catch (Exception e) {
@@ -158,6 +180,42 @@ public class Clients extends Thread {
         Thread thread = new Thread(runnable);
         thread.start();
     }
+
+    public void rcChannelsOut() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this){
+                    try {
+
+                        while (!MavSocket.isClosed()) {
+                            int systemId = 255;
+                            int componentId = 0;
+
+                            float[] pos=joystick.getPosition();
+                            RcChannelsOverride message = RcChannelsOverride.builder()
+                                    .chan1Raw((int)pos[1])
+                                    .chan2Raw((int)pos[0])
+                                    .chan3Raw((int)pos[3])
+                                    .chan4Raw((int)pos[2])
+                                    .build();
+                            connection.send2(systemId, componentId, message);
+
+                            wait(1000);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("TCP_out", e.toString());
+                    }
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+
+
 }
 
 
