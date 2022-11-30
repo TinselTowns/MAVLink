@@ -2,6 +2,7 @@ package com.example.mavlink;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -26,6 +27,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     float y1 = centerY;
     float x2 = centerX;
     float y2 = centerY2;
+
 
     private void setUp() {
         centerX = getWidth() / 4;
@@ -54,14 +56,14 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         setOnTouchListener(this);
     }
 
-
-    public void drawJoystick(float newX, float newY, float newX2, float newY2) {
+public Canvas myCanvas=null;
+    public void drawJoystick(float newX, float newY, float newX2, float newY2, Bitmap bitmap) {
         if (getHolder().getSurface().isValid()) {
             x1 = newX;
             y1 = newY;
             x2 = newX2;
             y2 = newY2;
-            Canvas myCanvas = this.getHolder().lockCanvas();
+            myCanvas = this.getHolder().lockCanvas();
             Paint colors = new Paint();
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
@@ -73,6 +75,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
             colors.setARGB(255, 255, 100, 0);
             myCanvas.drawCircle(newX, newY, hatRadius, colors);
             myCanvas.drawCircle(newX2, newY2, hatRadius, colors);
+            if(bitmap!=null)
+            myCanvas.drawBitmap(bitmap, 50, 50, colors);
 
             getHolder().unlockCanvasAndPost(myCanvas);
 
@@ -83,7 +87,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         setUp();
-        drawJoystick(centerX, centerY, centerX2, centerY2);
+        drawJoystick(centerX, centerY, centerX2, centerY2, Clients.paintBitmap());
 
 
     }
@@ -179,7 +183,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                     index1 = -1;
                     ID2 = -1;
                     index2 = -1;
-                    drawJoystick(centerX, centerY, centerX2, centerY2);
+                    drawJoystick(centerX, centerY, centerX2, centerY2, Clients.paintBitmap());
 
                 case MotionEvent.ACTION_POINTER_UP:
                     upPI = pointerIndex;
@@ -187,12 +191,12 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                         index1 = -1;
                         ID1 = -1;
                         index2 = 0;
-                        drawJoystick(centerX, centerY, curX2, curY2);
+                        drawJoystick(centerX, centerY, curX2, curY2, Clients.paintBitmap());
                     } else if (index2 == upPI) {
                         index2 = -1;
                         ID2 = -1;
                         index1 = 0;
-                        drawJoystick(curX, curY, centerX2, centerY2);
+                        drawJoystick(curX, curY, centerX2, centerY2, Clients.paintBitmap());
                     }
                     break;
 
@@ -222,7 +226,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                             curY = centerY + (e.getY(index1) - centerY) * ratio;
 
                         }
-                        drawJoystick(curX, curY, curX2, curY2);
+                        drawJoystick(curX, curY, curX2, curY2, Clients.paintBitmap());
                     }
                     if (index1 == -1) {
                         index2 = 0;
@@ -236,8 +240,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                             float ratio = baseRadius / dis;
                             float constrainedX = centerX2 + (e.getX(index2) - centerX2) * ratio;
                             float constrainedY = centerY2 + (e.getY(index2) - centerY2) * ratio;
-                            drawJoystick(centerX, centerY, constrainedX, constrainedY);
-                        } else drawJoystick(centerX, centerY, curX2, curY2);
+                            drawJoystick(centerX, centerY, constrainedX, constrainedY, Clients.paintBitmap());
+                        } else drawJoystick(centerX, centerY, curX2, curY2, Clients.paintBitmap());
                     }
                     if (index2 == -1) {
                         index1 = 0;
@@ -252,8 +256,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                             float ratio = baseRadius / dis;
                             float constrainedX = centerX + (e.getX(index1) - centerX) * ratio;
                             float constrainedY = centerY + (e.getY(index1) - centerY) * ratio;
-                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
-                        } else drawJoystick(curX, curY, centerX2, centerY2);
+                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2, Clients.paintBitmap());
+                        } else drawJoystick(curX, curY, centerX2, centerY2, Clients.paintBitmap());
                     }
                     break;
             }
