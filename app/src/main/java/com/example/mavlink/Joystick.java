@@ -27,6 +27,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     float y1 = centerY;
     float x2 = centerX;
     float y2 = centerY2;
+    public String position="";
 
 
     private void setUp() {
@@ -75,13 +76,19 @@ public Canvas myCanvas=null;
             colors.setARGB(255, 255, 100, 0);
             myCanvas.drawCircle(newX, newY, hatRadius, colors);
             myCanvas.drawCircle(newX2, newY2, hatRadius, colors);
-           // if(bitmap!=null)
-           // myCanvas.drawBitmap(bitmap, 50, 50, colors);
+            colors.setTextSize(40.0f);
+            myCanvas.drawText(Clients.getPos(), 30,50,colors);
+            myCanvas.drawText(Clients.getVersion(), 30,780,colors);
+           if(Clients.paintBitmap()!=null)
+           myCanvas.drawBitmap(Clients.paintBitmap(), 50, 50, colors);
+
 
             getHolder().unlockCanvasAndPost(myCanvas);
 
         }
     }
+
+
 
 
     @Override
@@ -130,6 +137,8 @@ public Canvas myCanvas=null;
         return pos;
 
     }
+
+
 
     public boolean onTouch(View v, MotionEvent e) {
 

@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import javax.net.ssl.HttpsURLConnection;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -47,36 +49,33 @@ import io.dronefleet.mavlink.common.RcChannelsOverride;
 
 public class Clients extends Thread {
 
-    private String serverIP ;
+    private String serverIP;
     private int port;
     private PipedInputStream MavInStream = new PipedInputStream(1024);
     private OutputStream MavOutStream;
 
 
-
-
     Joystick joystick;
 
 
-
-    public Clients(String address,int port, Joystick joystick) {
-        this.serverIP=address;
-        this.port=port;
-        this.joystick=joystick;
+    public Clients(String address, int port, Joystick joystick) {
+        this.serverIP = address;
+        this.port = port;
+        this.joystick = joystick;
 
     }
 
 
-
-    public MavlinkConnection connection=null;
+    public MavlinkConnection connection = null;
     public DatagramSocket MavSocket = null;
     private final int BUFFER_SIZE = 512;
-    DatagramSocket udpSocket=null;
-   // FileOutputStream fos=null;
+    DatagramSocket udpSocket = null;
+
+    // FileOutputStream fos=null;
     //BufferedOutputStream out =null;
     public void run() {
         try {
-           // f.createNewFile();
+            // f.createNewFile();
             //fos=new FileOutputStream(f);
             //out=new BufferedOutputStream(fos);
             InetSocketAddress address = new InetSocketAddress(serverIP, port);
@@ -101,18 +100,16 @@ public class Clients extends Thread {
 
                 @Override
                 public synchronized void flush() throws IOException {
-                  // Log.d("TCP", "length = " + buffer.length + " data = " + Arrays.toString(buffer));
+                    // Log.d("TCP", "length = " + buffer.length + " data = " + Arrays.toString(buffer));
                     MavSocket.send(new DatagramPacket(buffer, 0, buffer.length, UDPaddress));
                 }
             };
-            udpSocket=new DatagramSocket();
+            udpSocket = new DatagramSocket();
             Log.d("UDP_Client", "Connecting " + UDPaddress);
             udpSocket.connect(UDPaddress);
             byte[] buf2 = ("FILES").getBytes();
-            DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length,UDPaddress);
+            DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length, UDPaddress);
             udpSocket.send(packet2);
-
-
 
 
             Log.d("UDP_Client", "Connect");
@@ -133,28 +130,28 @@ public class Clients extends Thread {
 
                 MavSocket.receive(packet);
                 //Log.d("TCP_Client", "Received");
-                out.write(Arrays.copyOfRange(packet.getData(),0, packet.getLength()));
+                out.write(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
-            if(MavSocket!=null)
-            MavSocket.close();
+        } finally {
+            if (MavSocket != null)
+                MavSocket.close();
         }
 
     }
-float[] position=new float[3];
+
+    static float[] position = new float[3];
 
     private void MavMes() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                synchronized (this){
+                synchronized (this) {
                     try {
                         MavlinkMessage message;
                         while (true) {
-                            if (MavInStream.available() < 300){
+                            if (MavInStream.available() < 300) {
                                 wait(100);
                                 continue;
                             }
@@ -163,15 +160,14 @@ float[] position=new float[3];
                             if (message instanceof Mavlink2Message) {
                                 //Log.d("new_message", "Mav2");
                                 Mavlink2Message message2 = (Mavlink2Message) message;
-                                if(message.getPayload() instanceof LocalPositionNed){
-                                   // Log.d("new_message", "position");
+                                if (message.getPayload() instanceof LocalPositionNed) {
+                                    // Log.d("new_message", "position");
                                     MavlinkMessage<LocalPositionNed> localPos = (MavlinkMessage<LocalPositionNed>) message;
-                                    position[0]=localPos.getPayload().x();
-                                    position[1]=localPos.getPayload().y();
-                                    position[2]=localPos.getPayload().z();
-                                    for(int i=0;i<3;i++)
-                                    {
-                                       //Log.d("new_message ", " "+position[i]);
+                                    position[0] = localPos.getPayload().x();
+                                    position[1] = localPos.getPayload().y();
+                                    position[2] = localPos.getPayload().z();
+                                    for (int i = 0; i < 3; i++) {
+                                        //Log.d("new_message ", " "+position[i]);
                                     }
 
                                 }
@@ -195,46 +191,52 @@ float[] position=new float[3];
 
     }
 
-    public static Bitmap bitmap=null;
+    public static Bitmap bitmap = null;
+
     private void UDPin() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 synchronized (this) {
                     try {
-                        byte[] message = new byte[8000];
-
+                        byte[] message = new byte[32];
                         DatagramPacket packet = new DatagramPacket(message, message.length);
                         udpSocket.receive(packet);
                         String text = new String(message, 0, packet.getLength());
+                        //   for(int i=0;i<message.length;i++)
+                        //  {
+                        //      Log.d("Received data", " "+message[i]);
+                        //  }
 
-                        Log.d("Received data", " "+message[0]+" "+message[1]);
-                        bitmap=BitmapFactory.decodeByteArray(message, 0, message.length);
-                    } catch (IOException  e) {
-                        e.printStackTrace();
+                        bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
+                    } catch (IOException e) {
+                        Log.d("Received data", e.toString());
+                        ;
                     }
 
                 }
             }
 
-
-
         };
         Thread thread = new Thread(runnable);
         thread.start();
     }
-    public static  Bitmap paintBitmap()
-    {
+
+    public static Bitmap paintBitmap() {
         return bitmap;
     }
 
+    public static String getPos() {
+        String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
+        return s;
+    }
 
 
     private void HeartBeatMes() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                synchronized (this){
+                synchronized (this) {
                     try {
                         while (!MavSocket.isClosed()) {
                             int systemId = 255;
@@ -246,7 +248,6 @@ float[] position=new float[3];
                                     .mavlinkVersion(3)
                                     .build();
                             connection.send2(systemId, componentId, heartbeat);
-
                             wait(1000);
                         }
                     } catch (Exception e) {
@@ -264,19 +265,19 @@ float[] position=new float[3];
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                synchronized (this){
+                synchronized (this) {
                     try {
 
                         while (!MavSocket.isClosed()) {
                             int systemId = 255;
                             int componentId = 0;
 
-                            float[] pos=joystick.getPosition();
+                            float[] pos = joystick.getPosition();
                             RcChannelsOverride message = RcChannelsOverride.builder()
-                                    .chan1Raw((int)pos[1])
-                                    .chan2Raw((int)pos[0])
-                                    .chan3Raw((int)pos[3])
-                                    .chan4Raw((int)pos[2])
+                                    .chan1Raw((int) pos[1])
+                                    .chan2Raw((int) pos[0])
+                                    .chan3Raw((int) pos[3])
+                                    .chan4Raw((int) pos[2])
                                     .build();
                             connection.send2(systemId, componentId, message);
 
@@ -292,11 +293,13 @@ float[] position=new float[3];
         Thread thread = new Thread(runnable);
         thread.start();
     }
+
     BufferedReader reader;
-    InputStream stream ;
+    InputStream stream;
     HttpURLConnection HTTPconnection;
-    private void getContent()  {
-        reader=null;
+    static String version="";
+    private void getContent() {
+        reader = null;
         stream = null;
         HTTPconnection = null;
         Runnable runnable = new Runnable() {
@@ -304,7 +307,7 @@ float[] position=new float[3];
             public void run() {
                 synchronized (this) {
                     try {
-                        URL url = new URL("http://192.168.1.44/info");
+                        URL url = new URL("http://"+serverIP+"/info");
                         HTTPconnection = (HttpURLConnection) url.openConnection();
                         HTTPconnection.setRequestMethod("GET");
                         HTTPconnection.setReadTimeout(10000);
@@ -317,11 +320,10 @@ float[] position=new float[3];
                             buf.append(line).append("\n");
                         }
                         String s = buf.toString();
+                        version="version: "+s;
                         Log.d("Прошивка ", s);
 
-                    }
-                    catch (IOException i)
-                    {
+                    } catch (IOException i) {
                         Log.d("Прошивка ", i.toString());
 
                     }
@@ -332,6 +334,11 @@ float[] position=new float[3];
         };
         Thread thread = new Thread(runnable);
         thread.start();
+    }
+
+    public static String getVersion()
+    {
+        return version;
     }
 }
 
