@@ -57,7 +57,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     }
 
 public Canvas myCanvas=null;
-    public void drawJoystick(float newX, float newY, float newX2, float newY2, Bitmap bitmap) {
+    public void drawJoystick(float newX, float newY, float newX2, float newY2) {
         if (getHolder().getSurface().isValid()) {
             x1 = newX;
             y1 = newY;
@@ -75,8 +75,8 @@ public Canvas myCanvas=null;
             colors.setARGB(255, 255, 100, 0);
             myCanvas.drawCircle(newX, newY, hatRadius, colors);
             myCanvas.drawCircle(newX2, newY2, hatRadius, colors);
-            if(bitmap!=null)
-            myCanvas.drawBitmap(bitmap, 50, 50, colors);
+           // if(bitmap!=null)
+           // myCanvas.drawBitmap(bitmap, 50, 50, colors);
 
             getHolder().unlockCanvasAndPost(myCanvas);
 
@@ -87,7 +87,7 @@ public Canvas myCanvas=null;
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         setUp();
-        drawJoystick(centerX, centerY, centerX2, centerY2, Clients.paintBitmap());
+        drawJoystick(centerX, centerY, centerX2, centerY2);
 
 
     }
@@ -183,7 +183,7 @@ public Canvas myCanvas=null;
                     index1 = -1;
                     ID2 = -1;
                     index2 = -1;
-                    drawJoystick(centerX, centerY, centerX2, centerY2, Clients.paintBitmap());
+                    drawJoystick(centerX, centerY, centerX2, centerY2);
 
                 case MotionEvent.ACTION_POINTER_UP:
                     upPI = pointerIndex;
@@ -191,12 +191,12 @@ public Canvas myCanvas=null;
                         index1 = -1;
                         ID1 = -1;
                         index2 = 0;
-                        drawJoystick(centerX, centerY, curX2, curY2, Clients.paintBitmap());
+                        drawJoystick(centerX, centerY, curX2, curY2);
                     } else if (index2 == upPI) {
                         index2 = -1;
                         ID2 = -1;
                         index1 = 0;
-                        drawJoystick(curX, curY, centerX2, centerY2, Clients.paintBitmap());
+                        drawJoystick(curX, curY, centerX2, centerY2);
                     }
                     break;
 
@@ -226,7 +226,7 @@ public Canvas myCanvas=null;
                             curY = centerY + (e.getY(index1) - centerY) * ratio;
 
                         }
-                        drawJoystick(curX, curY, curX2, curY2, Clients.paintBitmap());
+                        drawJoystick(curX, curY, curX2, curY2);
                     }
                     if (index1 == -1) {
                         index2 = 0;
@@ -240,8 +240,8 @@ public Canvas myCanvas=null;
                             float ratio = baseRadius / dis;
                             float constrainedX = centerX2 + (e.getX(index2) - centerX2) * ratio;
                             float constrainedY = centerY2 + (e.getY(index2) - centerY2) * ratio;
-                            drawJoystick(centerX, centerY, constrainedX, constrainedY, Clients.paintBitmap());
-                        } else drawJoystick(centerX, centerY, curX2, curY2, Clients.paintBitmap());
+                            drawJoystick(centerX, centerY, constrainedX, constrainedY);
+                        } else drawJoystick(centerX, centerY, curX2, curY2);
                     }
                     if (index2 == -1) {
                         index1 = 0;
@@ -256,8 +256,8 @@ public Canvas myCanvas=null;
                             float ratio = baseRadius / dis;
                             float constrainedX = centerX + (e.getX(index1) - centerX) * ratio;
                             float constrainedY = centerY + (e.getY(index1) - centerY) * ratio;
-                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2, Clients.paintBitmap());
-                        } else drawJoystick(curX, curY, centerX2, centerY2, Clients.paintBitmap());
+                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
+                        } else drawJoystick(curX, curY, centerX2, centerY2);
                     }
                     break;
             }

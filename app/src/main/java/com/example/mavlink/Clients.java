@@ -8,7 +8,12 @@ import android.net.IpSecManager;
 import android.os.Bundle;
 import android.util.Log;
 
-
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -118,6 +123,7 @@ public class Clients extends Thread {
             MavMes();
             rcChannelsOut();
             UDPin();
+            getContent();
 
             byte[] buf = new byte[BUFFER_SIZE];
             Log.d("TCP_Client", "Connected");
@@ -196,7 +202,8 @@ float[] position=new float[3];
             public void run() {
                 synchronized (this) {
                     try {
-                        byte[] message = new byte[2097152];
+                        byte[] message = new byte[8000];
+
                         DatagramPacket packet = new DatagramPacket(message, message.length);
                         udpSocket.receive(packet);
                         String text = new String(message, 0, packet.getLength());
@@ -285,9 +292,51 @@ float[] position=new float[3];
         Thread thread = new Thread(runnable);
         thread.start();
     }
+    BufferedReader reader;
+    InputStream stream ;
+    HttpURLConnection HTTPconnection;
+    private void getContent()  {
+        reader=null;
+        stream = null;
+        HTTPconnection = null;
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    try {
+                        URL url = new URL("http://192.168.1.44/info");
+                        HTTPconnection = (HttpURLConnection) url.openConnection();
+                        HTTPconnection.setRequestMethod("GET");
+                        HTTPconnection.setReadTimeout(10000);
+                        HTTPconnection.connect();
+                        stream = HTTPconnection.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(stream));
+                        StringBuilder buf = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            buf.append(line).append("\n");
+                        }
+                        String s = buf.toString();
+                        Log.d("Прошивка ", s);
+
+                    }
+                    catch (IOException i)
+                    {
+                        Log.d("Прошивка ", i.toString());
+
+                    }
 
 
-
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
 }
+
+
+
+
 
 
