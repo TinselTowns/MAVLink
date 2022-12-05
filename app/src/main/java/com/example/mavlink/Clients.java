@@ -104,12 +104,12 @@ public class Clients extends Thread {
                     MavSocket.send(new DatagramPacket(buffer, 0, buffer.length, UDPaddress));
                 }
             };
-            udpSocket = new DatagramSocket();
+            udpSocket = new DatagramSocket(socket.getLocalPort());
             Log.d("UDP_Client", "Connecting " + UDPaddress);
-            udpSocket.connect(UDPaddress);
-            byte[] buf2 = ("FILES").getBytes();
-            DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length, UDPaddress);
-            udpSocket.send(packet2);
+//            udpSocket.connect(UDPaddress);
+//            byte[] buf2 = ("FILES").getBytes();
+//            DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length, UDPaddress);
+//            udpSocket.send(packet2);
 
 
             Log.d("UDP_Client", "Connect");
@@ -199,17 +199,17 @@ public class Clients extends Thread {
             public void run() {
                 synchronized (this) {
                     try {
-                        byte[] message = new byte[32];
-                        DatagramPacket packet = new DatagramPacket(message, message.length);
-                        udpSocket.receive(packet);
-                        String text = new String(message, 0, packet.getLength());
-                        //   for(int i=0;i<message.length;i++)
-                        //  {
-                        //      Log.d("Received data", " "+message[i]);
-                        //  }
+                        while (true) {
+                            byte[] message = new byte[32000];
+                            Log.d("Received bitmap", "wait");
+                            DatagramPacket packet = new DatagramPacket(message, message.length);
+                            udpSocket.receive(packet);
+                            Log.d("Received bitmap", packet.toString());
 
-                        bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
-                    } catch (IOException e) {
+                            bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
+                        }
+                        }
+                         catch (IOException e) {
                         Log.d("Received data", e.toString());
                         ;
                     }
