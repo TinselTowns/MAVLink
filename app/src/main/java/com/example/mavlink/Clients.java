@@ -53,6 +53,7 @@ public class Clients extends Thread {
     private int port;
     private PipedInputStream MavInStream = new PipedInputStream(1024);
     private OutputStream MavOutStream;
+    Pictures mPictures;
 
 
     Joystick joystick;
@@ -71,13 +72,10 @@ public class Clients extends Thread {
     private final int BUFFER_SIZE = 512;
     DatagramSocket udpSocket = null;
 
-    // FileOutputStream fos=null;
-    //BufferedOutputStream out =null;
+
     public void run() {
         try {
-            // f.createNewFile();
-            //fos=new FileOutputStream(f);
-            //out=new BufferedOutputStream(fos);
+
             InetSocketAddress address = new InetSocketAddress(serverIP, port);
             InetSocketAddress UDPaddress = new InetSocketAddress(serverIP, 8001);
             Log.d("TCP_Client", "Connecting " + address);
@@ -106,20 +104,18 @@ public class Clients extends Thread {
             };
             udpSocket = new DatagramSocket(socket.getLocalPort());
             Log.d("UDP_Client", "Connecting " + UDPaddress);
-//            udpSocket.connect(UDPaddress);
-//            byte[] buf2 = ("FILES").getBytes();
-//            DatagramPacket packet2 = new DatagramPacket(buf2, buf2.length, UDPaddress);
-//            udpSocket.send(packet2);
 
 
-            Log.d("UDP_Client", "Connect");
+
+
             PipedOutputStream out = new PipedOutputStream(MavInStream);
             MavSocket = new DatagramSocket();
             connection = MavlinkConnection.create(MavInStream, MavOutStream);
             HeartBeatMes();
             MavMes();
             rcChannelsOut();
-            UDPin();
+            mPictures=new Pictures(udpSocket);
+            mPictures.start();
             getContent();
 
             byte[] buf = new byte[BUFFER_SIZE];
@@ -129,7 +125,7 @@ public class Clients extends Thread {
                 DatagramPacket packet = new DatagramPacket(buf, BUFFER_SIZE);
 
                 MavSocket.receive(packet);
-                //Log.d("TCP_Client", "Received");
+
                 out.write(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
             }
         } catch (Exception e) {
@@ -191,40 +187,7 @@ public class Clients extends Thread {
 
     }
 
-    public static Bitmap bitmap = null;
 
-    private void UDPin() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                synchronized (this) {
-                    try {
-                        while (true) {
-                            byte[] message = new byte[32000];
-                            Log.d("Received bitmap", "wait");
-                            DatagramPacket packet = new DatagramPacket(message, message.length);
-                            udpSocket.receive(packet);
-                            Log.d("Received bitmap", packet.toString());
-
-                            bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
-                        }
-                        }
-                         catch (IOException e) {
-                        Log.d("Received data", e.toString());
-                        ;
-                    }
-
-                }
-            }
-
-        };
-        Thread thread = new Thread(runnable);
-        thread.start();
-    }
-
-    public static Bitmap paintBitmap() {
-        return bitmap;
-    }
 
     public static String getPos() {
         String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];

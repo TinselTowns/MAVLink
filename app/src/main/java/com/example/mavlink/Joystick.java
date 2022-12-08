@@ -79,9 +79,8 @@ public Canvas myCanvas=null;
             colors.setTextSize(40.0f);
             myCanvas.drawText(Clients.getPos(), 30,50,colors);
             myCanvas.drawText(Clients.getVersion(), 30,780,colors);
-           if(Clients.paintBitmap()!=null)
-           myCanvas.drawBitmap(Clients.paintBitmap(), 50, 50, colors);
-
+           if(Pictures.paintBitmap()!=null)
+           myCanvas.drawBitmap(Pictures.paintBitmap(), 50, 50, colors);
 
             getHolder().unlockCanvasAndPost(myCanvas);
 
