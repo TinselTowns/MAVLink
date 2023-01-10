@@ -106,15 +106,13 @@ public class Clients extends Thread {
             Log.d("UDP_Client", "Connecting " + UDPaddress);
 
 
-
-
             PipedOutputStream out = new PipedOutputStream(MavInStream);
             MavSocket = new DatagramSocket();
             connection = MavlinkConnection.create(MavInStream, MavOutStream);
             HeartBeatMes();
             MavMes();
             rcChannelsOut();
-            mPictures=new Pictures(udpSocket);
+            mPictures = new Pictures(udpSocket);
             mPictures.start();
             getContent();
 
@@ -157,14 +155,13 @@ public class Clients extends Thread {
                                 //Log.d("new_message", "Mav2");
                                 Mavlink2Message message2 = (Mavlink2Message) message;
                                 if (message.getPayload() instanceof LocalPositionNed) {
-                                    // Log.d("new_message", "position");
                                     MavlinkMessage<LocalPositionNed> localPos = (MavlinkMessage<LocalPositionNed>) message;
                                     position[0] = localPos.getPayload().x();
                                     position[1] = localPos.getPayload().y();
                                     position[2] = localPos.getPayload().z();
-                                    for (int i = 0; i < 3; i++) {
-                                        //Log.d("new_message ", " "+position[i]);
-                                    }
+                                    String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
+                                    MainActivity.UpdatePosition(s);
+
 
                                 }
 
@@ -185,13 +182,6 @@ public class Clients extends Thread {
         Thread thread = new Thread(runnable);
         thread.start();
 
-    }
-
-
-
-    public static String getPos() {
-        String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
-        return s;
     }
 
 
@@ -243,7 +233,6 @@ public class Clients extends Thread {
                                     .chan4Raw((int) pos[2])
                                     .build();
                             connection.send2(systemId, componentId, message);
-
                             wait(1000);
                         }
                     } catch (Exception e) {
@@ -260,7 +249,8 @@ public class Clients extends Thread {
     BufferedReader reader;
     InputStream stream;
     HttpURLConnection HTTPconnection;
-    static String version="";
+    static String version = "";
+
     private void getContent() {
         reader = null;
         stream = null;
@@ -270,7 +260,7 @@ public class Clients extends Thread {
             public void run() {
                 synchronized (this) {
                     try {
-                        URL url = new URL("http://"+serverIP+"/info");
+                        URL url = new URL("http://" + serverIP + "/info");
                         HTTPconnection = (HttpURLConnection) url.openConnection();
                         HTTPconnection.setRequestMethod("GET");
                         HTTPconnection.setReadTimeout(10000);
@@ -283,8 +273,7 @@ public class Clients extends Thread {
                             buf.append(line).append("\n");
                         }
                         String s = buf.toString();
-                        version="version: "+s;
-                        Log.d("Прошивка ", s);
+                        version = "version: " + s;
 
                     } catch (IOException i) {
                         Log.d("Прошивка ", i.toString());
@@ -299,8 +288,7 @@ public class Clients extends Thread {
         thread.start();
     }
 
-    public static String getVersion()
-    {
+    public static String getVersion() {
         return version;
     }
 }

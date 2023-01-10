@@ -27,16 +27,17 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     float y1 = centerY;
     float x2 = centerX;
     float y2 = centerY2;
-    public String position="";
+    Bitmap currentBitmap = null;
+    String position = "position: x:0.0 y:0.0 z:0.0";
 
 
     private void setUp() {
-        centerX = getWidth() / 4;
-        centerY = getHeight() / 2;
-        centerX2 = 3 * getWidth() / 4;
-        centerY2 = getHeight() / 2;
+        centerX = Math.min(getWidth(), getHeight()) / 3;
+        centerY = getHeight() - Math.min(getWidth(), getHeight()) / 3;
+        centerX2 = getWidth() - Math.min(getWidth(), getHeight()) / 3;
+        centerY2 = getHeight() - Math.min(getWidth(), getHeight()) / 3;
         baseRadius = Math.min(getWidth(), getHeight()) / 3;
-        hatRadius = Math.min(getWidth(), getHeight()) / 5;
+        hatRadius = Math.min(getWidth(), getHeight()) / 12;
     }
 
     public Joystick(Context context) {
@@ -57,13 +58,28 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         setOnTouchListener(this);
     }
 
-public Canvas myCanvas=null;
+    public void drawBitmap(Bitmap bitmap) {
+        currentBitmap = bitmap;
+        drawJoystick(curX, curY, curX2, curY2);
+
+
+    }
+
+    public void printPosition(String positions) {
+        position = positions;
+        drawJoystick(curX, curY, curX2, curY2);
+
+
+    }
+
+    public Canvas myCanvas = null;
+
     public void drawJoystick(float newX, float newY, float newX2, float newY2) {
         if (getHolder().getSurface().isValid()) {
-            x1 = newX;
-            y1 = newY;
-            x2 = newX2;
-            y2 = newY2;
+            curX = x1 = newX;
+            curY = y1 = newY;
+            curX2 = x2 = newX2;
+            curY2 = y2 = newY2;
             myCanvas = this.getHolder().lockCanvas();
             Paint colors = new Paint();
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -77,17 +93,15 @@ public Canvas myCanvas=null;
             myCanvas.drawCircle(newX, newY, hatRadius, colors);
             myCanvas.drawCircle(newX2, newY2, hatRadius, colors);
             colors.setTextSize(40.0f);
-            myCanvas.drawText(Clients.getPos(), 30,50,colors);
-            myCanvas.drawText(Clients.getVersion(), 30,780,colors);
-           if(Pictures.paintBitmap()!=null)
-           myCanvas.drawBitmap(Pictures.paintBitmap(), 50, 50, colors);
+            myCanvas.drawText(position, getWidth() / 30, getHeight() / 25, colors);
+            myCanvas.drawText(Clients.getVersion(), 4 * getWidth() / 5, getHeight() / 25, colors);
+            if (currentBitmap != null)
+                myCanvas.drawBitmap(currentBitmap, 3 * getWidth() / 7, getHeight() / 3, colors);
 
             getHolder().unlockCanvasAndPost(myCanvas);
 
         }
     }
-
-
 
 
     @Override
@@ -138,19 +152,17 @@ public Canvas myCanvas=null;
     }
 
 
-
     public boolean onTouch(View v, MotionEvent e) {
 
         if (v.equals(this)) {
-
             int actionMask = e.getActionMasked();
-
             int pointerIndex = e.getActionIndex();
-
 
             switch (actionMask) {
                 case MotionEvent.ACTION_DOWN:
                     inTouch = true;
+                    zeroX = e.getX(0);
+                    zeroY = e.getY(0);
                     if ((float) Math.sqrt((Math.pow(e.getX(0) - centerX, 2)) + Math.pow(e.getY(0) - centerY, 2)) < baseRadius) {
                         index1 = 0;
                         ID1 = e.getPointerId(0);
@@ -158,14 +170,20 @@ public Canvas myCanvas=null;
                         zeroY = e.getY(0);
                         curX = centerX;
                         curY = centerY;
-                    } else if ((float) Math.sqrt((Math.pow(e.getX(0) - centerX2, 2)) + Math.pow(e.getY(0) - centerY2, 2)) < baseRadius) {
-                        index2 = 0;
-                        ID2 = e.getPointerId(0);
+                    } else {
                         zeroX2 = e.getX(0);
                         zeroY2 = e.getY(0);
-                        curX2 = centerX2;
-                        curY2 = centerY2;
+                        if ((float) Math.sqrt((Math.pow(e.getX(0) - centerX2, 2)) + Math.pow(e.getY(0) - centerY2, 2)) < baseRadius) {
+                            index2 = 0;
+                            ID2 = e.getPointerId(0);
+                            zeroX2 = e.getX(0);
+                            zeroY2 = e.getY(0);
+                            curX2 = centerX2;
+                            curY2 = centerY2;
+
+                        }
                     }
+                    break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     downPI = pointerIndex;
                     if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius) {
@@ -175,6 +193,8 @@ public Canvas myCanvas=null;
                         zeroY = e.getY(downPI);
                         curX = centerX;
                         curY = centerY;
+
+
                     } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius) {
                         index2 = downPI;
                         ID2 = e.getPointerId(downPI);
@@ -182,6 +202,8 @@ public Canvas myCanvas=null;
                         zeroY2 = e.getY(downPI);
                         curX2 = centerX2;
                         curY2 = centerY2;
+
+
                     }
                     break;
 
@@ -195,6 +217,7 @@ public Canvas myCanvas=null;
 
                 case MotionEvent.ACTION_POINTER_UP:
                     upPI = pointerIndex;
+
                     if (index1 == upPI) {
                         index1 = -1;
                         ID1 = -1;
@@ -217,6 +240,7 @@ public Canvas myCanvas=null;
                         curX2 = -zeroX2 + e.getX(index2) + centerX2;
                         curY2 = -zeroY2 + e.getY(index2) + centerY2;
 
+
                         float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - zeroX2, 2)) + Math.pow(e.getY(index2) - zeroY2, 2));
                         if (displacement2 > baseRadius) {
                             float dis = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
@@ -236,7 +260,29 @@ public Canvas myCanvas=null;
                         }
                         drawJoystick(curX, curY, curX2, curY2);
                     }
+
+                    if (index2 == -1) {
+
+                        index1 = 0;
+                        curX = -zeroX + e.getX(index1) + centerX;
+                        curY = -zeroY + e.getY(index1) + centerY;
+
+                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
+
+
+                        if (displacement > baseRadius) {
+
+                            float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
+                            float ratio = baseRadius / dis;
+                            float constrainedX = centerX + (e.getX(index1) - centerX) * ratio;
+                            float constrainedY = centerY + (e.getY(index1) - centerY) * ratio;
+                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
+                        } else {
+                            drawJoystick(curX, curY, centerX2, centerY2);
+                        }
+                    }
                     if (index1 == -1) {
+
                         index2 = 0;
                         curX2 = -zeroX2 + e.getX(index2) + centerX2;
                         curY2 = -zeroY2 + e.getY(index2) + centerY2;
@@ -250,22 +296,6 @@ public Canvas myCanvas=null;
                             float constrainedY = centerY2 + (e.getY(index2) - centerY2) * ratio;
                             drawJoystick(centerX, centerY, constrainedX, constrainedY);
                         } else drawJoystick(centerX, centerY, curX2, curY2);
-                    }
-                    if (index2 == -1) {
-                        index1 = 0;
-                        curX = -zeroX + e.getX(index1) + centerX;
-                        curY = -zeroY + e.getY(index1) + centerY;
-
-                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
-
-
-                        if (displacement > baseRadius) {
-                            float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
-                            float ratio = baseRadius / dis;
-                            float constrainedX = centerX + (e.getX(index1) - centerX) * ratio;
-                            float constrainedY = centerY + (e.getY(index1) - centerY) * ratio;
-                            drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
-                        } else drawJoystick(curX, curY, centerX2, centerY2);
                     }
                     break;
             }
