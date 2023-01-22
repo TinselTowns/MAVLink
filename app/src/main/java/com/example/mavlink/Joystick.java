@@ -37,7 +37,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         centerX2 = getWidth() - Math.min(getWidth(), getHeight()) / 3;
         centerY2 = getHeight() - Math.min(getWidth(), getHeight()) / 3;
         baseRadius = Math.min(getWidth(), getHeight()) / 3;
-        hatRadius = Math.min(getWidth(), getHeight()) / 12;
+        hatRadius = Math.min(getWidth(), getHeight()) / 14;
     }
 
     public Joystick(Context context) {
@@ -187,8 +187,9 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                     }
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
+                    if(pointerIndex<2){
                     downPI = pointerIndex;
-                    if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius) {
+                    if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius && index1==-1) {
                         index1 = downPI;
                         ID1 = e.getPointerId(downPI);
                         zeroX = e.getX(downPI);
@@ -197,7 +198,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                         curY = centerY;
 
 
-                    } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius) {
+                    } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius && index2==-1) {
                         index2 = downPI;
                         ID2 = e.getPointerId(downPI);
                         zeroX2 = e.getX(downPI);
@@ -205,7 +206,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                         curX2 = centerX2;
                         curY2 = centerY2;
 
-                    }
+                    }}
                     break;
 
                 case MotionEvent.ACTION_UP:
@@ -244,13 +245,13 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
 
                     if (index1 != -1 && index2 != -1) {
-                        curX = -zeroX + e.getX(index1) + centerX;
-                        curY = -zeroY + e.getY(index1) + centerY;
-                        curX2 = -zeroX2 + e.getX(index2) + centerX2;
-                        curY2 = -zeroY2 + e.getY(index2) + centerY2;
+                        curX = e.getX(index1) ;
+                        curY =e.getY(index1);
+                        curX2 = e.getX(index2);
+                        curY2 =e.getY(index2);
 
 
-                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - zeroX2, 2)) + Math.pow(e.getY(index2) - zeroY2, 2));
+                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
                         if (displacement2 > baseRadius) {
                             float dis = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
                             float ratio = baseRadius / dis;
@@ -259,7 +260,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
                         }
 
-                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
+                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
                         if (displacement > baseRadius) {
                             float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
                             float ratio = baseRadius / dis;
@@ -276,7 +277,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                         curX = -zeroX + e.getX(index1) + centerX;
                         curY = -zeroY + e.getY(index1) + centerY;
 
-                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - zeroX, 2)) + Math.pow(e.getY(index1) - zeroY, 2));
+                        float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
 
 
                         if (displacement > baseRadius) {
@@ -287,7 +288,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                             drawJoystick(constrainedX, constrainedY, centerX2, centerY2);
                         } else {
 
-                            drawJoystick(curX, curY, centerX2, centerY2);
+                            drawJoystick(e.getX(index1), e.getY(index1), centerX2, centerY2);
                         }
                     }
                     if (index1 == -1 && inTouch) {
@@ -295,7 +296,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                         index2 = 0;
                         curX2 = -zeroX2 + e.getX(index2) + centerX2;
                         curY2 = -zeroY2 + e.getY(index2) + centerY2;
-                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - zeroX2, 2)) + Math.pow(e.getY(index2) - zeroY2, 2));
+                        float displacement2 = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
 
                         if (displacement2 > baseRadius) {
                             float dis = (float) Math.sqrt((Math.pow(e.getX(index2) - centerX2, 2)) + Math.pow(e.getY(index2) - centerY2, 2));
@@ -303,7 +304,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                             float constrainedX = centerX2 + (e.getX(index2) - centerX2) * ratio;
                             float constrainedY = centerY2 + (e.getY(index2) - centerY2) * ratio;
                             drawJoystick(centerX, centerY, constrainedX, constrainedY);
-                        } else drawJoystick(centerX, centerY, curX2, curY2);
+                        } else drawJoystick(centerX, centerY, e.getX(index2), e.getY(index2));
                     }
                     break;
             }

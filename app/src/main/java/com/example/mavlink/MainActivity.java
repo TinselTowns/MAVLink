@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity implements Joystick.Joystick
         super.onCreate(savedInstanceState);
 
         mJoystick = new Joystick(this);
-        mClients = new Clients("192.168.1.40", 8888, mJoystick);
+        mClients = new Clients("192.168.1.51", 8888, mJoystick);
         mClients.start();
         setContentView(mJoystick);
 
