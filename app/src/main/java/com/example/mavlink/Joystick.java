@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.TextView;
 
 
 public class Joystick extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
@@ -32,12 +33,13 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
 
     private void setUp() {
+
         centerX = Math.min(getWidth(), getHeight()) / 3;
         centerY = getHeight() - Math.min(getWidth(), getHeight()) / 3;
         centerX2 = getWidth() - Math.min(getWidth(), getHeight()) / 3;
         centerY2 = getHeight() - Math.min(getWidth(), getHeight()) / 3;
-        baseRadius = Math.min(getWidth(), getHeight()) / 3;
-        hatRadius = Math.min(getWidth(), getHeight()) / 14;
+        baseRadius = 2*Math.min(getWidth(), getHeight()) / 7;
+        hatRadius = Math.min(getWidth(), getHeight()) / 18;
     }
 
     public Joystick(Context context) {
@@ -60,6 +62,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
     public void drawBitmap(Bitmap bitmap) {
         currentBitmap = bitmap;
+
         drawJoystick(curX, curY, curX2, curY2);
 
 
@@ -95,9 +98,10 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
             colors.setTextSize(40.0f);
             myCanvas.drawText(position, getWidth() / 30, getHeight() / 25, colors);
             myCanvas.drawText(Clients.getVersion(), 4 * getWidth() / 5, getHeight() / 25, colors);
-            if (currentBitmap != null)
-                myCanvas.drawBitmap(currentBitmap, 3 * getWidth() / 7, getHeight() / 3, colors);
+            if (currentBitmap != null) {
 
+                myCanvas.drawBitmap(currentBitmap, 3 * getWidth() / 7, getHeight() / 3, colors);
+            }
             getHolder().unlockCanvasAndPost(myCanvas);
 
         }
@@ -188,25 +192,25 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     if(pointerIndex<2){
-                    downPI = pointerIndex;
-                    if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius && index1==-1) {
-                        index1 = downPI;
-                        ID1 = e.getPointerId(downPI);
-                        zeroX = e.getX(downPI);
-                        zeroY = e.getY(downPI);
-                        curX = centerX;
-                        curY = centerY;
+                        downPI = pointerIndex;
+                        if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX, 2)) + Math.pow(e.getY(downPI) - centerY, 2)) < baseRadius && index1==-1) {
+                            index1 = downPI;
+                            ID1 = e.getPointerId(downPI);
+                            zeroX = e.getX(downPI);
+                            zeroY = e.getY(downPI);
+                            curX = centerX;
+                            curY = centerY;
 
 
-                    } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius && index2==-1) {
-                        index2 = downPI;
-                        ID2 = e.getPointerId(downPI);
-                        zeroX2 = e.getX(downPI);
-                        zeroY2 = e.getY(downPI);
-                        curX2 = centerX2;
-                        curY2 = centerY2;
+                        } else if ((float) Math.sqrt((Math.pow(e.getX(downPI) - centerX2, 2)) + Math.pow(e.getY(downPI) - centerY2, 2)) < baseRadius && index2==-1) {
+                            index2 = downPI;
+                            ID2 = e.getPointerId(downPI);
+                            zeroX2 = e.getX(downPI);
+                            zeroY2 = e.getY(downPI);
+                            curX2 = centerX2;
+                            curY2 = centerY2;
 
-                    }}
+                        }}
                     break;
 
                 case MotionEvent.ACTION_UP:
