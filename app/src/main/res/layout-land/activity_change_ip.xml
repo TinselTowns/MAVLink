@@ -38,5 +38,10 @@
             android:id="@+id/ip4"
             android:maxLength="3"/>
     </LinearLayout>
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/back"
+        android:text="DONE"></Button>
 </LinearLayout>

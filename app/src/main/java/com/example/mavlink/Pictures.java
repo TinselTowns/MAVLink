@@ -17,6 +17,7 @@ public class Pictures extends Thread {
     }
 
     public void update() {
+
         MainActivity.UpdatePicture(bitmap);
     }
 
@@ -27,10 +28,14 @@ public class Pictures extends Thread {
                 synchronized (this) {
                     try {
                         while (true) {
+
                             byte[] message = new byte[32000];
                             DatagramPacket packet = new DatagramPacket(message, message.length);
                             udpSocket.receive(packet);
+
                             bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
+                            if(bitmap!=null)
+
                             update();
                         }
                     } catch (IOException e) {

@@ -7,12 +7,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -32,6 +34,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     String position = "position: x:0.0 y:0.0 z:0.0";
 
 
+
     private void setUp() {
 
         centerX = Math.min(getWidth(), getHeight()) / 3;
@@ -46,6 +49,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         super(context);
         getHolder().addCallback(this);
         setOnTouchListener(this);
+
     }
 
     public Joystick(Context context, AttributeSet attributes, int style) {
@@ -115,6 +119,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
 
     }
+
+
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {

@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.net.IpSecManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -71,15 +72,17 @@ public class Clients extends Thread {
     public DatagramSocket MavSocket = null;
     private final int BUFFER_SIZE = 512;
     DatagramSocket udpSocket = null;
-
+    public Socket socket=new Socket();
 
     public void run() {
+
         try {
 
             InetSocketAddress address = new InetSocketAddress(serverIP, port);
             InetSocketAddress UDPaddress = new InetSocketAddress(serverIP, 8001);
             Log.d("TCP_Client", "Connecting " + address);
-            Socket socket = new Socket();
+            socket = new Socket();
+
             socket.connect(address, 10000);
             Log.d("TCP_Client", "Connect");
             MavOutStream = new OutputStream() {
@@ -128,6 +131,8 @@ public class Clients extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            serverIP=MainActivity.curIP;
+            run();
         } finally {
             if (MavSocket != null)
                 MavSocket.close();
@@ -292,7 +297,6 @@ public class Clients extends Thread {
         return version;
     }
 }
-
 
 
 
