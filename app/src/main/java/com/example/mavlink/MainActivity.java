@@ -5,9 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -17,6 +15,7 @@ import android.widget.Toast;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity implements Joystick.JoystickListener {
@@ -29,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements Joystick.Joystick
     private Button mButton;
     public int[] IP= {192,168,200,200};
     public static String curIP="192.168.200.200";
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
