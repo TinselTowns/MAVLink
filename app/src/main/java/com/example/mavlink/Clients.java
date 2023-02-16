@@ -132,6 +132,13 @@ public class Clients extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
             serverIP=MainActivity.curIP;
+            try {
+                Thread.sleep(1500);
+            }
+            catch (InterruptedException err)
+            {
+                err.printStackTrace();
+            }
             run();
         } finally {
             if (MavSocket != null)

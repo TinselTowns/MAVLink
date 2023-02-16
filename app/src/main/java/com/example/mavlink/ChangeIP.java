@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class ChangeIP extends AppCompatActivity {
-    //private WifiManager wifiManager;
+
     public static int[] IP = {192,168,200,200};
     EditText text1 = null;
     EditText text2 = null;
@@ -37,16 +37,17 @@ public class ChangeIP extends AppCompatActivity {
         text2 = findViewById(R.id.ip2);
         text3 = findViewById(R.id.ip3);
         text4 = findViewById(R.id.ip4);
-        //wifiManager=(WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        try {
-            //String ip= Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
 
-            text1.setText(IP[0]);
-            text2.setText(IP[1]);
-            text3.setText(IP[2]);
-            text4.setText(IP[3]);
+        try {
+
+
+            text1.setText(Integer.toString(IP[0]));
+            text2.setText(Integer.toString(IP[1]));
+            text3.setText(Integer.toString(IP[2]));
+            text4.setText(Integer.toString(IP[3]));
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d("erk", e.toString());
         }
         text1.setOnKeyListener(new View.OnKeyListener() {
                                    @Override
