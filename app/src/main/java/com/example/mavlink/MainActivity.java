@@ -18,12 +18,13 @@ import java.net.UnknownHostException;
 import android.widget.TextView;
 
 
-public class MainActivity extends AppCompatActivity implements Joystick.JoystickListener {
+public class MainActivity extends AppCompatActivity {
 
     Clients mClients;
     static Joystick mJoystick;
-    private TextView tv_status;
-    float[] pos;
+    public static TextView tv_status;
+    private TextView version;
+    static String pos="";
     public static final int REQUEST_CODE=1;
     private Button mButton;
     public int[] IP= {192,168,200,200};
@@ -32,18 +33,18 @@ public class MainActivity extends AppCompatActivity implements Joystick.Joystick
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        mJoystick = new Joystick(this);
-
-//
         setContentView(R.layout.activity_main);
         mJoystick = findViewById(R.id.game_view);
         mClients = new Clients(curIP, 8888, mJoystick);
         mClients.start();
         tv_status = findViewById(R.id.position);
+        version=findViewById(R.id.version);
+
         thread.start();
         mButton=(Button)findViewById(R.id.change);
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -64,12 +65,12 @@ public class MainActivity extends AppCompatActivity implements Joystick.Joystick
             super.run();
             while (true){
                 if (mJoystick != null){
-                    pos = mJoystick.getPosition();
                     runOnUiThread(
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    tv_status.setText("X " + pos[0] + " Y " + pos[1] + " " + pos[2] + " " + pos[3]);
+                                    tv_status.setText(pos);
+                                    version.setText(Clients.getVersion());
                                 }
                             });
                     try {
@@ -94,20 +95,19 @@ public class MainActivity extends AppCompatActivity implements Joystick.Joystick
 
 
 
+
     }
 
 
 
-    @Override
-    public void onJoystickMoved(float xPercent, float yPercent, float x2Percent, float y2Percent, int id) {
-    }
+
 
     public static void UpdatePicture(Bitmap bitmap) {
         mJoystick.drawBitmap(bitmap);
     }
 
     public static void UpdatePosition(String positions) {
-        mJoystick.printPosition(positions);
+        pos=positions;
     }
 
 

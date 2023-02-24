@@ -57,6 +57,7 @@ public class Clients extends Thread {
     Pictures mPictures;
 
 
+
     Joystick joystick;
 
 
@@ -286,6 +287,7 @@ public class Clients extends Thread {
                         }
                         String s = buf.toString();
                         version = "version: " + s;
+
 
                     } catch (IOException i) {
                         Log.d("Прошивка ", i.toString());

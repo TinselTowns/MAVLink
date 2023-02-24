@@ -31,7 +31,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     float x2 = centerX;
     float y2 = centerY2;
     Bitmap currentBitmap = null;
-    String position = "position: x:0.0 y:0.0 z:0.0";
+
 
 
 
@@ -72,12 +72,6 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
     }
 
-    public void printPosition(String positions) {
-        position = positions;
-        drawJoystick(curX, curY, curX2, curY2);
-
-
-    }
 
     public Canvas myCanvas = null;
 
@@ -100,8 +94,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
             myCanvas.drawCircle(newX, newY, hatRadius, colors);
             myCanvas.drawCircle(newX2, newY2, hatRadius, colors);
             colors.setTextSize(40.0f);
-            myCanvas.drawText(position, getWidth() / 30, getHeight() / 25, colors);
-            myCanvas.drawText(Clients.getVersion(), 4 * getWidth() / 5, getHeight() / 25, colors);
+
             if (currentBitmap != null) {
 
                 myCanvas.drawBitmap(currentBitmap, 3 * getWidth() / 7, getHeight() / 3, colors);
@@ -324,8 +317,5 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     }
 
 
-    public interface JoystickListener {
-        void onJoystickMoved(float xPercent, float yPercent, float x2Percent, float y2Percent, int id);
 
-    }
 }
