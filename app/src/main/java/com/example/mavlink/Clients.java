@@ -242,8 +242,8 @@ public class Clients extends Thread {
                             RcChannelsOverride message = RcChannelsOverride.builder()
                                     .chan1Raw((int) pos[1])
                                     .chan2Raw((int) pos[0])
-                                    .chan3Raw((int) pos[3])
-                                    .chan4Raw((int) pos[2])
+                                    .chan3Raw((int) pos[2])
+                                    .chan4Raw((int) pos[3])
                                     .build();
                             connection.send2(systemId, componentId, message);
                             wait(1000);
@@ -262,7 +262,7 @@ public class Clients extends Thread {
     BufferedReader reader;
     InputStream stream;
     HttpURLConnection HTTPconnection;
-    static String version = "";
+    static String version = "Ищем квадрокоптер...";
 
     private void getContent() {
         reader = null;

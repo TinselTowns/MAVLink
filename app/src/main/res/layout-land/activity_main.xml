@@ -16,9 +16,10 @@
 
         <TextView
             android:id="@+id/position"
-            android:layout_width="491dp"
-            android:layout_height="48dp"
+            android:layout_width="426dp"
+            android:layout_height="50dp"
 
+            android:layout_marginStart="8dp"
             android:text="@string/position"
             app:layout_constraintEnd_toStartOf="@+id/change"
             app:layout_constraintStart_toEndOf="@+id/version"
@@ -26,9 +27,10 @@
 
         <TextView
             android:id="@+id/version"
-            android:layout_width="137dp"
-            android:layout_height="48dp"
+            android:layout_width="181dp"
+            android:layout_height="49dp"
 
+            android:layout_marginStart="8dp"
             android:text="@string/version"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,6 +40,7 @@
             android:layout_width="wrap_content"
 
             android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
             android:text="IP"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

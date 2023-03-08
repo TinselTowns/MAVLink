@@ -146,7 +146,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     public float[] getPosition() {
 
         pos[0] = (x1 - centerX) * 500 / baseRadius + 1500;
-        pos[1] = (y1 - centerY) * 500 / baseRadius + 1500;
+        pos[1] = -(y1 - centerY) * 500 / baseRadius + 1500;
         pos[2] = (x2 - centerX2) * 500 / baseRadius + 1500;
         pos[3] = (y2 - centerY2) * 500 / baseRadius + 1500;
 

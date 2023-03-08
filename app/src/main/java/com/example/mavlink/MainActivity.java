@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         tv_status = findViewById(R.id.position);
         version=findViewById(R.id.version);
 
+
         thread.start();
         mButton=(Button)findViewById(R.id.change);
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -55,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     private Thread thread = new Thread(){
         synchronized
