@@ -69,7 +69,12 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     tv_status.setText(pos);
-                                    version.setText(Clients.getVersion());
+                                    String versionStr=Clients.getVersion();
+                                    if(versionStr.equals("Ищем квадрокоптер"))
+                                    {
+                                        version.setText(versionStr+" "+curIP);
+                                    }
+                                    else version.setText(Clients.getVersion());
                                 }
                             });
                     try {

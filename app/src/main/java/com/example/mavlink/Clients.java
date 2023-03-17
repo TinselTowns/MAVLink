@@ -57,7 +57,6 @@ public class Clients extends Thread {
     Pictures mPictures;
 
 
-
     Joystick joystick;
 
 
@@ -73,7 +72,7 @@ public class Clients extends Thread {
     public DatagramSocket MavSocket = null;
     private final int BUFFER_SIZE = 512;
     DatagramSocket udpSocket = null;
-    public Socket socket=new Socket();
+    public Socket socket = new Socket();
 
     public void run() {
 
@@ -132,12 +131,10 @@ public class Clients extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            serverIP=MainActivity.curIP;
+            serverIP = MainActivity.curIP;
             try {
                 Thread.sleep(1500);
-            }
-            catch (InterruptedException err)
-            {
+            } catch (InterruptedException err) {
                 err.printStackTrace();
             }
             run();
@@ -214,7 +211,7 @@ public class Clients extends Thread {
                                     .mavlinkVersion(3)
                                     .build();
                             connection.send2(systemId, componentId, heartbeat);
-                            wait(1000);
+                            wait(100);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -262,7 +259,7 @@ public class Clients extends Thread {
     BufferedReader reader;
     InputStream stream;
     HttpURLConnection HTTPconnection;
-    static String version = "Ищем квадрокоптер...";
+    static String version = "Ищем квадрокоптер";
 
     private void getContent() {
         reader = null;
@@ -287,14 +284,15 @@ public class Clients extends Thread {
                         }
                         String s = buf.toString();
                         version = "version: " + s;
-
-
                     } catch (IOException i) {
                         Log.d("Прошивка ", i.toString());
-
+                        try {
+                            Thread.sleep(1500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        run();
                     }
-
-
                 }
             }
         };
