@@ -3,6 +3,10 @@ package com.example.mavlink;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.widget.ImageView;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,11 +18,12 @@ public class Pictures extends Thread {
 
     public Pictures(DatagramSocket socket) {
         udpSocket = socket;
+
     }
 
-    public void update() {
-
-        MainActivity.UpdatePicture(bitmap);
+    public MutableLiveData<Bitmap> liveData = new MutableLiveData<>();
+    LiveData<Bitmap> getData() {
+        return liveData;
     }
 
     public void run() {
@@ -34,9 +39,8 @@ public class Pictures extends Thread {
                             udpSocket.receive(packet);
 
                             bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
-                            if(bitmap!=null)
-
-                            update();
+                            if(bitmap!=null){
+                                liveData.postValue(bitmap);}
                         }
                     } catch (IOException e) {
                         Log.d("Received data", e.toString());

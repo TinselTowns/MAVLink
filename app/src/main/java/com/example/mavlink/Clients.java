@@ -6,8 +6,16 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.net.IpSecManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -51,20 +59,42 @@ import io.dronefleet.mavlink.common.RcChannelsOverride;
 public class Clients extends Thread {
 
     private String serverIP;
-    private int port;
+    private final int port;
     private PipedInputStream MavInStream = new PipedInputStream(1024);
     private OutputStream MavOutStream;
-    Pictures mPictures;
+    float[] pos ={1500,1500,1500,1500};
+    Joystick joystick1;
+    Joystick joystick2;
 
 
-    Joystick joystick;
 
-
-    public Clients(String address, int port, Joystick joystick) {
+    public Clients(String address, int port, Joystick joystick01, Joystick joystick02) {
         this.serverIP = address;
         this.port = port;
-        this.joystick = joystick;
+        joystick1=joystick01;
+        joystick2=joystick02;
+        joystick1.getData().observeForever(value -> {
+            pos[0]=value[0];
+            pos[1]=value[1];
+            Log.d("joystick1", pos[0]+" "+pos[1]);
+        });
+        joystick2.getData().observeForever(value -> {
+            pos[2]=value[0];
+            pos[3]=value[1];
+            Log.d("joystick2", pos[2]+" "+pos[3]);
+        });
 
+
+    }
+
+    public MutableLiveData<DatagramSocket> liveData = new MutableLiveData<>();
+    LiveData<DatagramSocket> getSocket() {
+        return liveData;
+    }
+
+    public MutableLiveData<String> livePos = new MutableLiveData<>();
+    LiveData<String> getPosition() {
+        return livePos;
     }
 
 
@@ -115,25 +145,24 @@ public class Clients extends Thread {
             HeartBeatMes();
             MavMes();
             rcChannelsOut();
-            mPictures = new Pictures(udpSocket);
-            mPictures.start();
+
+            liveData.postValue(udpSocket);
+
             getContent();
 
             byte[] buf = new byte[BUFFER_SIZE];
             Log.d("TCP_Client", "Connected");
-
             while (!MavSocket.isClosed()) {
                 DatagramPacket packet = new DatagramPacket(buf, BUFFER_SIZE);
-
                 MavSocket.receive(packet);
-
                 out.write(Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d("error", e.toString());
             serverIP = MainActivity.curIP;
             try {
-                Thread.sleep(1500);
+                Thread.sleep(4000);
             } catch (InterruptedException err) {
                 err.printStackTrace();
             }
@@ -142,7 +171,6 @@ public class Clients extends Thread {
             if (MavSocket != null)
                 MavSocket.close();
         }
-
     }
 
     static float[] position = new float[3];
@@ -162,7 +190,7 @@ public class Clients extends Thread {
                             message = connection.next();
 
                             if (message instanceof Mavlink2Message) {
-                                //Log.d("new_message", "Mav2");
+
                                 Mavlink2Message message2 = (Mavlink2Message) message;
                                 if (message.getPayload() instanceof LocalPositionNed) {
                                     MavlinkMessage<LocalPositionNed> localPos = (MavlinkMessage<LocalPositionNed>) message;
@@ -170,7 +198,9 @@ public class Clients extends Thread {
                                     position[1] = localPos.getPayload().y();
                                     position[2] = localPos.getPayload().z();
                                     String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
-                                    MainActivity.UpdatePosition(s);
+                                    Log.d("pos", s);
+                                    livePos.postValue(s);
+
 
 
                                 }
@@ -211,7 +241,7 @@ public class Clients extends Thread {
                                     .mavlinkVersion(3)
                                     .build();
                             connection.send2(systemId, componentId, heartbeat);
-                            wait(100);
+                            wait(1000);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -230,12 +260,9 @@ public class Clients extends Thread {
             public void run() {
                 synchronized (this) {
                     try {
-
                         while (!MavSocket.isClosed()) {
                             int systemId = 255;
                             int componentId = 0;
-
-                            float[] pos = joystick.getPosition();
                             RcChannelsOverride message = RcChannelsOverride.builder()
                                     .chan1Raw((int) pos[1])
                                     .chan2Raw((int) pos[0])
@@ -243,7 +270,7 @@ public class Clients extends Thread {
                                     .chan4Raw((int) pos[3])
                                     .build();
                             connection.send2(systemId, componentId, message);
-                            wait(1000);
+                            wait(100);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
