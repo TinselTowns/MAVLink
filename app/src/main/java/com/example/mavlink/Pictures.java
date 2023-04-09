@@ -21,10 +21,10 @@ public class Pictures extends Thread {
 
     }
 
-    public MutableLiveData<Bitmap> liveData = new MutableLiveData<>();
+    public MutableLiveData<Bitmap> livePic = new MutableLiveData<>();
 
     LiveData<Bitmap> getData() {
-        return liveData;
+        return livePic;
     }
 
     public void run() {
@@ -38,10 +38,9 @@ public class Pictures extends Thread {
                             byte[] message = new byte[32000];
                             DatagramPacket packet = new DatagramPacket(message, message.length);
                             udpSocket.receive(packet);
-
                             bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
                             if (bitmap != null) {
-                                liveData.postValue(bitmap);
+                                livePic.postValue(bitmap);
                             }
                         }
                     } catch (IOException e) {
