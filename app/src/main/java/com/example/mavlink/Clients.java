@@ -62,39 +62,44 @@ public class Clients extends Thread {
     private final int port;
     private PipedInputStream MavInStream = new PipedInputStream(1024);
     private OutputStream MavOutStream;
-    float[] pos ={1500,1500,1500,1500};
+    float[] pos = {1500, 1500, 1500, 1500};
     Joystick joystick1;
     Joystick joystick2;
-
 
 
     public Clients(String address, int port, Joystick joystick01, Joystick joystick02) {
         this.serverIP = address;
         this.port = port;
-        joystick1=joystick01;
-        joystick2=joystick02;
+        joystick1 = joystick01;
+        joystick2 = joystick02;
         joystick1.getData().observeForever(value -> {
-            pos[0]=value[0];
-            pos[1]=value[1];
-            Log.d("joystick1", pos[0]+" "+pos[1]);
+            pos[0] = value[0];
+            pos[1] = value[1];
         });
         joystick2.getData().observeForever(value -> {
-            pos[2]=value[0];
-            pos[3]=value[1];
-            Log.d("joystick2", pos[2]+" "+pos[3]);
+            pos[2] = value[0];
+            pos[3] = value[1];
         });
 
 
     }
 
-    public MutableLiveData<DatagramSocket> liveData = new MutableLiveData<>();
+    public MutableLiveData<DatagramSocket> liveSocket = new MutableLiveData<>();
+
     LiveData<DatagramSocket> getSocket() {
-        return liveData;
+        return liveSocket;
     }
 
     public MutableLiveData<String> livePos = new MutableLiveData<>();
+
     LiveData<String> getPosition() {
         return livePos;
+    }
+
+    public MutableLiveData<String> liveVersion = new MutableLiveData<>();
+
+    LiveData<String> getFlexibleVersion() {
+        return liveVersion;
     }
 
 
@@ -142,11 +147,12 @@ public class Clients extends Thread {
             PipedOutputStream out = new PipedOutputStream(MavInStream);
             MavSocket = new DatagramSocket();
             connection = MavlinkConnection.create(MavInStream, MavOutStream);
+            liveVersion.postValue("");
             HeartBeatMes();
             MavMes();
             rcChannelsOut();
 
-            liveData.postValue(udpSocket);
+            liveSocket.postValue(udpSocket);
 
             getContent();
 
@@ -159,17 +165,11 @@ public class Clients extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d("error", e.toString());
-            serverIP = MainActivity.curIP;
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException err) {
-                err.printStackTrace();
-            }
-            run();
-        } finally {
             if (MavSocket != null)
                 MavSocket.close();
+            Log.d("error", e.toString());
+            serverIP = MainActivity.curIP;
+            run();
         }
     }
 
@@ -200,7 +200,6 @@ public class Clients extends Thread {
                                     String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
                                     Log.d("pos", s);
                                     livePos.postValue(s);
-
 
 
                                 }
@@ -286,7 +285,7 @@ public class Clients extends Thread {
     BufferedReader reader;
     InputStream stream;
     HttpURLConnection HTTPconnection;
-    static String version = "Ищем квадрокоптер";
+    static String version = "";
 
     private void getContent() {
         reader = null;
@@ -310,7 +309,8 @@ public class Clients extends Thread {
                             buf.append(line).append("\n");
                         }
                         String s = buf.toString();
-                        version = "version: " + s;
+                        version = s;
+                        liveVersion.postValue(version);
                     } catch (IOException i) {
                         Log.d("Прошивка ", i.toString());
                         try {

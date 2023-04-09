@@ -22,6 +22,7 @@ public class Pictures extends Thread {
     }
 
     public MutableLiveData<Bitmap> liveData = new MutableLiveData<>();
+
     LiveData<Bitmap> getData() {
         return liveData;
     }
@@ -39,8 +40,9 @@ public class Pictures extends Thread {
                             udpSocket.receive(packet);
 
                             bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
-                            if(bitmap!=null){
-                                liveData.postValue(bitmap);}
+                            if (bitmap != null) {
+                                liveData.postValue(bitmap);
+                            }
                         }
                     } catch (IOException e) {
                         Log.d("Received data", e.toString());

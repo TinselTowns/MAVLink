@@ -23,7 +23,7 @@ public class ChangeIP extends AppCompatActivity {
     EditText text2 = null;
     EditText text3 = null;
     EditText text4 = null;
-    TextView errorIP=null;
+    TextView errorIP = null;
     boolean correctIP = true;
 
     private Button mButton;
@@ -44,7 +44,7 @@ public class ChangeIP extends AppCompatActivity {
         text2 = findViewById(R.id.ip2);
         text3 = findViewById(R.id.ip3);
         text4 = findViewById(R.id.ip4);
-        errorIP=findViewById(R.id.incorrect);
+        errorIP = findViewById(R.id.incorrect);
 
         try {
             text1.setText(Integer.toString(IP[0]));
@@ -56,108 +56,50 @@ public class ChangeIP extends AppCompatActivity {
             Log.d("erk", e.toString());
         }
 
-        text1.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.d("smth", s.toString());
-                if (s.toString().equals("")) {
-                    correctIP = false;
-                } else {
-                    if (Integer.valueOf(s.toString()) > 255) {
-                        correctIP = false;
-                    } else correctIP = true;
-                }
-                onChangedIP();
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
-        text2.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.d("smth", s.toString());
-                if (s.toString().equals("")) {
-                    correctIP = false;
-                } else {
-                    if (Integer.valueOf(s.toString()) > 255) {
-                        correctIP = false;
-                    } else correctIP = true;
-                }
-                onChangedIP();
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
-        text3.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.d("smth", s.toString());
-                if (s.toString().equals("")) {
-                    correctIP = false;
-                } else {
-                    if (Integer.valueOf(s.toString()) > 255) {
-                        correctIP = false;
-                    } else correctIP = true;
-                }
-                onChangedIP();
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
-        text4.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.d("smth", s.toString());
-                if (s.toString().equals("")) {
-                    correctIP = false;
-                } else {
-                    if (Integer.valueOf(s.toString()) > 255) {
-                        correctIP = false;
-                    } else correctIP = true;
-                }
-                onChangedIP();
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
+        checkChanges(text1);
+        checkChanges(text2);
+        checkChanges(text3);
+        checkChanges(text4);
 
-        mButton = (Button) findViewById(R.id.back);
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (correctIP) {
-                    IP[0] = Integer.valueOf(text1.getText().toString());
-                    IP[1] = Integer.valueOf(text2.getText().toString());
-                    IP[2] = Integer.valueOf(text3.getText().toString());
-                    IP[3] = Integer.valueOf(text4.getText().toString());
-                    newIntent(IP);
-                }
+
+        mButton = findViewById(R.id.back);
+        mButton.setOnClickListener(v -> {
+            if (correctIP) {
+                IP[0] = Integer.parseInt(text1.getText().toString());
+                IP[1] = Integer.parseInt(text2.getText().toString());
+                IP[2] = Integer.parseInt(text3.getText().toString());
+                IP[3] = Integer.parseInt(text4.getText().toString());
+                newIntent(IP);
             }
         });
     }
-    private void onChangedIP()
-    {
-        if(!correctIP)
-        {
+
+    private void onChangedIP() {
+        if (!correctIP) {
             errorIP.setText("IP адрес введен некорректно");
-        }
-        else errorIP.setText("");
+        } else errorIP.setText("");
+    }
+
+    void checkChanges(EditText text) {
+        text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.toString().equals("")) {
+                    correctIP = false;
+                } else {
+                    correctIP = Integer.parseInt(s.toString()) <= 255;
+                }
+                onChangedIP();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
     }
 
 

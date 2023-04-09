@@ -31,8 +31,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     float y1 = centerY;
 
 
+    public MutableLiveData<float[]> liveData = new MutableLiveData<>();
 
-   public MutableLiveData<float[]> liveData = new MutableLiveData<>();
     LiveData<float[]> getData() {
         return liveData;
     }
@@ -40,7 +40,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     private void setUp() {
         centerX = Math.min(getWidth(), getHeight()) / 2;
         centerY = getHeight() - Math.min(getWidth(), getHeight()) / 2;
-        baseRadius = 40*Math.min(getWidth(), getHeight())/100;
+        baseRadius = 40 * Math.min(getWidth(), getHeight()) / 100;
         hatRadius = Math.min(getWidth(), getHeight()) / 10;
     }
 
@@ -62,7 +62,6 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
         getHolder().addCallback(this);
         setOnTouchListener(this);
     }
-
 
 
     public Canvas myCanvas = null;
@@ -95,6 +94,7 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
@@ -133,8 +133,8 @@ public class Joystick extends SurfaceView implements SurfaceHolder.Callback, Vie
 
                 case MotionEvent.ACTION_MOVE:
                     if (index1 != -1) {
-                        curX = e.getX(index1) ;
-                        curY =e.getY(index1);
+                        curX = e.getX(index1);
+                        curY = e.getY(index1);
                         float displacement = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));
                         if (displacement > baseRadius) {
                             float dis = (float) Math.sqrt((Math.pow(e.getX(index1) - centerX, 2)) + Math.pow(e.getY(index1) - centerY, 2));

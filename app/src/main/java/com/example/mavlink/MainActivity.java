@@ -20,6 +20,7 @@ import android.widget.Toast;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import android.widget.TextView;
 
 
@@ -30,12 +31,13 @@ public class MainActivity extends AppCompatActivity {
     static Joystick Joystick02;
     public static TextView tv_status;
     private TextView version;
-    static String pos="";
-    public static final int REQUEST_CODE=1;
+    //static String pos = "";
+    public static final int REQUEST_CODE = 1;
     private Button mButton;
     Pictures mPictures;
-    public int[] IP= {192,168,200,200};
-    public static String curIP="192.168.200.200";
+    public int[] IP = {192, 168, 200, 200};
+    public static String curIP = "192.168.200.200";
+    String flexibleVersion="";
 
 
     @Override
@@ -43,64 +45,37 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Joystick01 = findViewById(R.id.game_view);
-        Joystick02=findViewById(R.id.game_view2);
-        ImageView image=findViewById(R.id.image);
+        Joystick02 = findViewById(R.id.game_view2);
+        ImageView image = findViewById(R.id.image);
         mClients = new Clients(curIP, 8888, Joystick01, Joystick02);
         mClients.start();
-        mClients.getSocket().observeForever(new Observer<DatagramSocket>() {
-            @Override
-            public void onChanged(DatagramSocket socket) {
-                mPictures = new Pictures(socket);
-                mPictures.start();
-                mPictures.getData().observeForever(image::setImageBitmap);
-            }
+        mClients.getSocket().observeForever(socket -> {
+            mPictures = new Pictures(socket);
+            mPictures.start();
+            mPictures.getData().observeForever(image::setImageBitmap);
         });
         tv_status = findViewById(R.id.position);
-        version=findViewById(R.id.version);
-        mClients.getPosition().observeForever(new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                pos=s;
+        version = findViewById(R.id.version);
+        version.setText("Ищем квадрокоптер " + curIP);
+        mClients.getPosition().observeForever(s -> tv_status.setText(s));
+        mClients.getFlexibleVersion().observeForever(s -> {
+            if(!s.equals(""))
+            {
+                flexibleVersion=s;
+                version.setText(s);
             }
         });
 
-        thread.start();
-        mButton=(Button)findViewById(R.id.change);
+
+        mButton = findViewById(R.id.change);
         mButton.setOnClickListener(v -> {
-            Intent intent=new Intent(MainActivity.this, ChangeIP.class);
-            startActivityForResult(intent,REQUEST_CODE);
+            Intent intent = new Intent(MainActivity.this, ChangeIP.class);
+            startActivityForResult(intent, REQUEST_CODE);
         });
     }
 
-    private Thread thread = new Thread(){
-        synchronized
-        @Override
-        public void run() {
-            super.run();
-            while (true){
-                if (Joystick01 != null){
-                    runOnUiThread(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    tv_status.setText(pos);
-                                    String versionStr=Clients.getVersion();
-                                    if(versionStr.equals("Ищем квадрокоптер"))
-                                    {
-                                        version.setText(versionStr+" "+curIP);
-                                    }
-                                    else version.setText(Clients.getVersion());
-                                }
-                            });
-                    try {
-                        wait(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    };
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -108,8 +83,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         IP = data.getIntArrayExtra("ip");
-        Log.d("IP",Integer.toString(IP[0]));
-        curIP=IP[0]+"."+IP[1]+"."+IP[2]+"."+IP[3];
+        Log.d("IP", Integer.toString(IP[0]));
+        curIP = IP[0] + "." + IP[1] + "." + IP[2] + "." + IP[3];
+        if(flexibleVersion.equals(""))
+        {
+            version.setText("Ищем квадрокоптер " + curIP);
+        }
     }
 
 }
