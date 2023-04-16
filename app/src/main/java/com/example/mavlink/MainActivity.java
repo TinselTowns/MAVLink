@@ -17,11 +17,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import android.widget.TextView;
+
+import io.dronefleet.mavlink.MavlinkConnection;
+import io.dronefleet.mavlink.common.CommandLong;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -31,13 +35,14 @@ public class MainActivity extends AppCompatActivity {
     static Joystick Joystick02;
     public static TextView tv_status;
     private TextView version;
-    //static String pos = "";
     public static final int REQUEST_CODE = 1;
     private Button mButton;
     Pictures mPictures;
     public int[] IP = {192, 168, 200, 200};
     public static String curIP = "192.168.200.200";
-    String flexibleVersion="";
+    String flexibleVersion = "";
+    private Button startButton;
+    private Button endButton;
 
 
     @Override
@@ -59,21 +64,24 @@ public class MainActivity extends AppCompatActivity {
         version.setText("Ищем квадрокоптер " + curIP);
         mClients.getPosition().observeForever(s -> tv_status.setText(s));
         mClients.getFlexibleVersion().observeForever(s -> {
-            if(!s.equals(""))
-            {
-                flexibleVersion=s;
+            if (!s.equals("")) {
+                flexibleVersion = s;
                 version.setText(s);
             }
         });
-
 
         mButton = findViewById(R.id.change);
         mButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ChangeIP.class);
             startActivityForResult(intent, REQUEST_CODE);
         });
-    }
 
+        startButton = findViewById(R.id.start);
+        startButton.setOnClickListener(v -> mClients.Drone(1));
+
+        endButton = findViewById(R.id.end);
+        endButton.setOnClickListener(v -> mClients.Drone(0));
+    }
 
 
     @Override
@@ -85,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
         IP = data.getIntArrayExtra("ip");
         Log.d("IP", Integer.toString(IP[0]));
         curIP = IP[0] + "." + IP[1] + "." + IP[2] + "." + IP[3];
-        if(flexibleVersion.equals(""))
-        {
+        if (flexibleVersion.equals("")) {
             version.setText("Ищем квадрокоптер " + curIP);
         }
     }

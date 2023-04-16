@@ -46,6 +46,7 @@ import java.util.Arrays;
 import io.dronefleet.mavlink.Mavlink2Message;
 import io.dronefleet.mavlink.MavlinkConnection;
 import io.dronefleet.mavlink.MavlinkMessage;
+import io.dronefleet.mavlink.common.CommandLong;
 import io.dronefleet.mavlink.common.DataTransmissionHandshake;
 import io.dronefleet.mavlink.common.EncapsulatedData;
 import io.dronefleet.mavlink.common.Heartbeat;
@@ -151,7 +152,6 @@ public class Clients extends Thread {
             HeartBeatMes();
             MavMes();
             rcChannelsOut();
-
             liveSocket.postValue(udpSocket);
 
             getContent();
@@ -329,6 +329,31 @@ public class Clients extends Thread {
 
     public static String getVersion() {
         return version;
+    }
+
+
+    public void Drone(int state) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    try {
+                        if (!MavSocket.isClosed()) {
+                            int systemId = 255;
+                            int componentId = 0;
+                            CommandLong startMessage = CommandLong.builder().targetSystem(systemId).targetComponent(componentId).command().confirmation(0).param1(state).build();
+                            connection.send2(systemId, componentId, startMessage);
+                            wait(1000);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("TCP_out", e.toString());
+                    }
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }
 
