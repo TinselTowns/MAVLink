@@ -52,6 +52,7 @@ import io.dronefleet.mavlink.common.EncapsulatedData;
 import io.dronefleet.mavlink.common.Heartbeat;
 import io.dronefleet.mavlink.common.LocalPositionNed;
 import io.dronefleet.mavlink.common.MavAutopilot;
+import io.dronefleet.mavlink.common.MavCmd;
 import io.dronefleet.mavlink.common.MavState;
 import io.dronefleet.mavlink.common.MavType;
 import io.dronefleet.mavlink.common.MavlinkDataStreamType;
@@ -197,7 +198,7 @@ public class Clients extends Thread {
                                     position[0] = localPos.getPayload().x();
                                     position[1] = localPos.getPayload().y();
                                     position[2] = localPos.getPayload().z();
-                                    String s = "position: " + "x: " + position[0] + " y: " + position[1] + " z: " + position[2];
+                                    String s = "position: " + "x: " + String.format("%.2f", position[0]) + " y: " + String.format("%.2f", position[1]) + " z: " + String.format("%.2f", position[2]);
                                     Log.d("pos", s);
                                     livePos.postValue(s);
 
@@ -341,7 +342,7 @@ public class Clients extends Thread {
                         if (!MavSocket.isClosed()) {
                             int systemId = 255;
                             int componentId = 0;
-                            CommandLong startMessage = CommandLong.builder().targetSystem(systemId).targetComponent(componentId).command().confirmation(0).param1(state).build();
+                            CommandLong startMessage = CommandLong.builder().targetSystem(systemId).targetComponent(componentId).command(MavCmd.MAV_CMD_COMPONENT_ARM_DISARM).confirmation(0).param1(state).build();
                             connection.send2(systemId, componentId, startMessage);
                             wait(1000);
                         }

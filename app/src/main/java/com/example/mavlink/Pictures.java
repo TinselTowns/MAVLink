@@ -39,8 +39,10 @@ public class Pictures extends Thread {
                             DatagramPacket packet = new DatagramPacket(message, message.length);
                             udpSocket.receive(packet);
                             bitmap = BitmapFactory.decodeByteArray(message, 0, message.length);
-                            if (bitmap != null) {
-                                livePic.postValue(bitmap);
+                            Bitmap bmHalf = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()*2,
+                                    bitmap.getHeight()*2, false);
+                            if (bmHalf != null) {
+                                livePic.postValue(bmHalf);
                             }
                         }
                     } catch (IOException e) {
