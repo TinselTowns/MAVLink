@@ -1,61 +1,32 @@
 package com.example.mavlink;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.net.IpSecManager;
-import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-
 import io.dronefleet.mavlink.Mavlink2Message;
 import io.dronefleet.mavlink.MavlinkConnection;
 import io.dronefleet.mavlink.MavlinkMessage;
 import io.dronefleet.mavlink.common.CommandLong;
-import io.dronefleet.mavlink.common.DataTransmissionHandshake;
-import io.dronefleet.mavlink.common.EncapsulatedData;
 import io.dronefleet.mavlink.common.Heartbeat;
 import io.dronefleet.mavlink.common.LocalPositionNed;
 import io.dronefleet.mavlink.common.MavAutopilot;
 import io.dronefleet.mavlink.common.MavCmd;
 import io.dronefleet.mavlink.common.MavState;
 import io.dronefleet.mavlink.common.MavType;
-import io.dronefleet.mavlink.common.MavlinkDataStreamType;
 import io.dronefleet.mavlink.common.RcChannelsOverride;
 
 public class Clients extends Thread {
@@ -268,6 +239,7 @@ public class Clients extends Thread {
                                     .chan2Raw((int) pos[0])
                                     .chan3Raw((int) pos[2])
                                     .chan4Raw((int) pos[3])
+                                    .chan5Raw(2000)
                                     .build();
                             connection.send2(systemId, componentId, message);
                             wait(100);

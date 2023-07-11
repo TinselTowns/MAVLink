@@ -1,31 +1,12 @@
 package com.example.mavlink;
 
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import android.widget.TextView;
-
-import io.dronefleet.mavlink.MavlinkConnection;
-import io.dronefleet.mavlink.common.CommandLong;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     Clients mClients;
     static Joystick Joystick01;
     static Joystick Joystick02;
-    public static TextView tv_status;
+    public TextView tv_status;
     private TextView version;
     public static final int REQUEST_CODE = 1;
     private Button mButton;
